@@ -1,20 +1,12 @@
 {
-  "name": "tehnologii-web",
+  "name": "licenta-bianca",
   "version": "1.0.0",
-  "description": "Aplicatia este destinata oamenilor ce folosesc transportul in comun, pentru a isi impartasi experienta cu acestea. Oamenii isi pot exprima nivelul de satisfactie fata de un mijloc de transport. Oamenii pot gasi informatii despre orice calatorie cu un mijloc de transport precum durata si traseu.",
+  "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/EneRadu/Tehnologii-Web.git"
-  },
-  "bugs": {
-    "url": "https://github.com/EneRadu/Tehnologii-Web/issues"
-  },
-  "homepage": "https://github.com/EneRadu/Tehnologii-Web#readme",
   "dependencies": {
     "express": "^4.17.2",
     "nodemailer": "^6.7.3",
