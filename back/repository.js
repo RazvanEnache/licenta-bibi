@@ -2,11 +2,11 @@ import Sequelize from "sequelize";
 
 const sequelize = new Sequelize({
 	dialect: "sqlite",
-	storage: "./users.db",
+	storage: "./transport.db",
 });
 
 // Entities: User (isAdmin property, if set to false, then user is transporter), Transport, TransportingCar, Merchandise,
-// TransportingCarXUser, DestinationAddress
+// TransportingCarXUser, DestinationAddress, TransportigCarXUserXMerchandise
 /* 
     Relations: 
     - Transport has only one TransportingCarXUser
@@ -17,20 +17,20 @@ const User = sequelize.define("user", {
 	id: {
 		type: Sequelize.UUID,
 		defaultValue: Sequelize.UUIDV4,
-		allowNull: false,
+		allowNull: true,
 		primaryKey: true,
 	},
 	firstName: {
 		type: Sequelize.STRING,
-		allowNull: false,
+		allowNull: true,
 	},
 	lastName: {
 		type: Sequelize.STRING,
-		allowNull: false,
+		allowNull: true,
 	},
 	email: {
 		type: Sequelize.STRING,
-		allowNull: false,
+		allowNull: true,
 		validate: {
 			isEmail: true,
 		},
@@ -49,34 +49,23 @@ const User = sequelize.define("user", {
 	},
 });
 
-const DestinationAddress = sequelize.define("destinationAddress", {
-	id: {
-		type: Sequelize.UUID,
-		defaultValue: Sequelize.UUIDV4,
-		allowNull: false,
-		primaryKey: true,
-	},
-	longitude: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-	latitude: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-	street: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-	number: {
-		type: Sequelize.NUMBER,
-		allowNull: false,
-	},
-	county: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-});
+// ##COMMENTED, USED ONLY IF DECIDED TO ADD ADDRESS NAME
+// const DestinationAddress = sequelize.define("destinationAddress", {
+// 	id: {
+// 		type: Sequelize.UUID,
+// 		defaultValue: Sequelize.UUIDV4,
+// 		allowNull: false,
+// 		primaryKey: true,
+// 	},
+// 	longitude: {
+// 		type: Sequelize.STRING,
+// 		allowNull: true,
+// 	},
+// 	latitude: {
+// 		type: Sequelize.STRING,
+// 		allowNull: true,
+// 	},
+// });
 
 const TransportingCar = sequelize.define("transportingCar", {
 	id: {
@@ -87,11 +76,11 @@ const TransportingCar = sequelize.define("transportingCar", {
 	},
 	maxVolume: {
 		type: Sequelize.FLOAT,
-		allowNull: false,
+		allowNull: true,
 	},
 	maxWeight: {
 		type: Sequelize.FLOAT,
-		allowNull: false,
+		allowNull: true,
 	},
 });
 
@@ -102,11 +91,6 @@ const TransportingCarXUser = sequelize.define("transportingCarXUser", {
 		allowNull: false,
 		primaryKey: true,
 	},
-	transportingCarId: {
-		type: Sequelize.UUID,
-		allowNull: false,
-	},
-	userId: {},
 });
 
 const Merchandise = sequelize.define("merchandise", {
@@ -116,27 +100,32 @@ const Merchandise = sequelize.define("merchandise", {
 		allowNull: false,
 		primaryKey: true,
 	},
-	destinationAddressId: {
-		type: Sequelize.UUID,
-		allowNull: false,
-	},
 	volume: {
 		type: Sequelize.FLOAT,
-		allowNull: false,
+		allowNull: true,
 	},
 	weight: {
 		type: Sequelize.FLOAT,
-		allowNull: false,
+		allowNull: true,
 	},
 	desirableDeliveringDate: {
-		type: Sequelize.DATE,
-		allowNull: false,
+		type: Sequelize.DATEONLY,
+		allowNull: true,
 	},
 	priority: {
 		type: Sequelize.ENUM,
 		values: [0, 1],
 		defaultValue: 1,
 	},
+	longitude: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	latitude: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	
 });
 
 /* 
@@ -151,29 +140,55 @@ const Transport = sequelize.define("transport", {
 		allowNull: false,
 		primaryKey: true,
 	},
-	transportingCarXUser: {
-		type: Sequelize.UUID,
-		allowNull: false,
-	},
-	merchandiseId: {
-		type: Sequelize.UUID,
-		allowNull: false,
-	},
 });
 
-Transport.hasOne(TransportingCarXUser, {
+const TransportingCarXUserXMerchandise = sequelize.define(
+	"transportingCarXUserXMerchandise",
+	{
+		id: {
+			type: Sequelize.UUID,
+			defaultValue: Sequelize.UUIDV4,
+			allowNull: false,
+			primaryKey: true,
+		},
+		date: {
+			type: Sequelize.DATEONLY,
+			allowNull: true,
+		},
+	}
+);
+
+TransportingCarXUser.hasOne(TransportingCarXUserXMerchandise, {
 	foreignKey: "transportingCarXUserId",
 });
-Transport.hasOne(TransportingCarXUser, {
+
+Merchandise.hasOne(TransportingCarXUserXMerchandise, {
+	foreignKey: "merchandiseId",
+});
+
+TransportingCarXUser.hasOne(Transport, {
 	foreignKey: "transportingCarXUserId",
 });
-Clinic.hasOne(Address, { foreignKey: "clinicId" });
+Merchandise.hasOne(Transport, {
+	foreignKey: "merchandiseId",
+});
+
+TransportingCar.hasOne(TransportingCarXUser, {
+	foreignKey: "transportingCarId",
+});
+User.hasOne(TransportingCarXUser, {
+	foreignKey: "userId",
+});
+
+// DestinationAddress.hasOne(Merchandise, {
+// 	foreignKey: "destinationAddressId",
+// });
 
 async function initialize() {
 	await sequelize.authenticate();
-	// await sequelize.sync({
-	//   alter: true,
-	// });
+	await sequelize.sync({
+		alter: true,
+	});
 }
 
 export {
@@ -181,5 +196,7 @@ export {
 	User,
 	Merchandise,
 	Transport,
-	DestinationAddress /*Policy*/,
+	TransportingCar,
+	TransportingCarXUser,
+	TransportingCarXUserXMerchandise,
 };
