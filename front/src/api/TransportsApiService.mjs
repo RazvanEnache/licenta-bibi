@@ -1,11 +1,11 @@
-import api from "./Api";
+import api from "./Api.mjs";
 
 const getTransports = () => {
 	return api.get(`/transport`);
 };
 
 const getTransportById = (id) => {
-	return api.get(`/transport/id/${id}`);
+	return api.get(`/transport/${id}`);
 };
 
 const registerTransport = (data) => {

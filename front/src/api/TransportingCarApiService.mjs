@@ -1,11 +1,11 @@
-import api from "./Api";
+import api from "./Api.mjs";
 
-const getTransportingCars = () => {
-	return api.get(`/transportingCar`);
+const getTransportingCars = (query) => {
+	return api.get(`/transportingCar?filter=${query}`);
 };
 
 const getTransportingCarById = (id) => {
-	return api.get(`/transportingCar/id/${id}`);
+	return api.get(`/transportingCar/${id}`);
 };
 
 const registerTransportingCar = (data) => {

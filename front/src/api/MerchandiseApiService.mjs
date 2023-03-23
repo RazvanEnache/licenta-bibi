@@ -1,11 +1,11 @@
 import api from "./Api.mjs";
 
-const getMerchandises = (query) => {
-	return api.get(`/merchandise?filter=${query}`);
+const getMerchandises = () => {
+	return api.get(`/merchandise`);
 };
 
 const getMerchandiseById = (id) => {
-	return api.get(`/merchandise/id/${id}`);
+	return api.get(`/merchandise/${id}`);
 };
 
 const registerMerchandise = (data) => {

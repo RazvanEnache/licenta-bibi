@@ -1,11 +1,11 @@
-import api from "./Api";
+import api from "./Api.mjs";
 
 const getUsers = () => {
 	return api.get(`/users`);
 };
 
 const getUserById = (id) => {
-	return api.get(`/users/id/${id}`);
+	return api.get(`/users/${id}`);
 };
 
 const registerUser = (data) => {
