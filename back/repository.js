@@ -20,6 +20,14 @@ const User = sequelize.define("user", {
 		allowNull: true,
 		primaryKey: true,
 	},
+	user: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	pwd: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
 	firstName: {
 		type: Sequelize.STRING,
 		allowNull: true,
@@ -43,9 +51,14 @@ const User = sequelize.define("user", {
 		type: Sequelize.STRING,
 		allowNull: true,
 	},
-	isAdmin: {
-		type: Sequelize.BOOLEAN,
+	refreshToken: {
+		type: Sequelize.STRING,
 		allowNull: true,
+	},
+	roles: {
+		type: Sequelize.STRING,
+		allowNull: true,
+		defaultValue: "2001",
 	},
 });
 
@@ -62,6 +75,10 @@ const TransportingCar = sequelize.define("transportingCar", {
 	},
 	maxWeight: {
 		type: Sequelize.REAL,
+		allowNull: true,
+	},
+	name: {
+		type: Sequelize.STRING,
 		allowNull: true,
 	},
 });
@@ -137,9 +154,9 @@ User.hasOne(TransportingCar, {
 
 async function initialize() {
 	await sequelize.authenticate();
-	await sequelize.sync({
-		alter: true,
-	});
+	// await sequelize.sync({
+	// 	alter: true,
+	// });
 }
 
 export { initialize, User, Merchandise, Transport, TransportingCar };

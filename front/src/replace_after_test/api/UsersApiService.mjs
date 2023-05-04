@@ -12,6 +12,10 @@ const registerUser = (data) => {
 	return api.post(`/users`, data);
 };
 
+const authUser = (data) => {
+	return api.post("/auth", data);
+};
+
 const editUser = (id, data) => {
 	return api.put(`/users/${id}`, data);
 };
@@ -32,6 +36,7 @@ const usersService = {
 	getUsers,
 	getUserById,
 	registerUser,
+	authUser,
 	editUser,
 	deleteUser,
 	patchUser,

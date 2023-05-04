@@ -1,15 +1,28 @@
 import express from "express";
-import { User, Merchandise, Transport, TransportingCar } from "./repository.js";
-import { getRecords, postRecord, deleteRecords, getRecord, headRecord, putRecord, patchRecord, deleteRecord, sendMail } from "./service.js";
+import { User, Merchandise, Transport, TransportingCar } from "../repository.js";
+import {
+	getRecords,
+	postRecord,
+	deleteRecords,
+	getRecord,
+	headRecord,
+	putRecord,
+	patchRecord,
+	deleteRecord,
+	sendMail,
+	authUser,
+	registerUser,
+} from "../service.js";
 
 const router = express.Router();
 
 router.route("/send-mail").post(async (request, response) => sendMail(request, response));
 
+router.route("/auth").post(async (request, response) => authUser(User, request, response));
+
 router
 	.route("/users")
 	.get(async (request, response) => getRecords(User, request, response))
-	.post(async (request, response) => postRecord(User, request, response))
 	.delete(async (request, response) => deleteRecords(User, request, response));
 
 router
@@ -18,7 +31,7 @@ router
 	.head(async (request, response) => headRecord(User, request, response))
 	.put(async (request, response) => putRecord(User, request, response))
 	.patch(async (request, response) => patchRecord(User, request, response))
-	.delete(async (request, response) => deleteRecordByEthAddress(User, request, response));
+	.delete(async (request, response) => deleteRecord(User, request, response));
 
 router
 	.route("/transportingCar")
