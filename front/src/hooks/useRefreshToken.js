@@ -12,10 +12,13 @@ const useRefreshToken = () => {
 			console.log(JSON.stringify(prev));
 			console.log(response.data.accessToken);
 			console.log(response.data.roles);
+			console.log(response.data.user);
 			return {
 				...prev,
 				roles: response.data.roles,
 				accessToken: response.data.accessToken,
+				user: response.data.user,
+				userObj: response.data.userObj,
 			};
 		});
 		return response.data.accessToken;

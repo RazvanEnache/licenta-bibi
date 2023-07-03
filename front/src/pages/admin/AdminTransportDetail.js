@@ -8,6 +8,8 @@ import * as tt from "@tomtom-international/web-sdk-maps";
 import * as ttapi from "@tomtom-international/web-sdk-services";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 
+const tomtomApiKey = "OtuPVAWYG9uHLLVSB1HSaeIZyf9Sv0Mc";
+
 const AdminTransportDetail = () => {
 	const [transport, setTransport] = useState();
 
@@ -17,8 +19,6 @@ const AdminTransportDetail = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { id } = useParams();
-
-	const tomtomApiKey = "foQZHPqTvz6z5b9z4gSkaQnzWRoeAmhd";
 
 	useEffect(() => {
 		let isMounted = true;
@@ -61,7 +61,11 @@ const AdminTransportDetail = () => {
 					transportObj.longitude = merchandise?.longitude;
 					transportObj.volume = merchandise?.volume;
 					transportObj.weight = merchandise?.weight;
-					//transport.status = status;
+					transportObj.status = transportData?.status;
+					transportObj.distanceTraveled = transportData.distanceTraveled;
+					transportObj.cost = transportData.cost;
+					transportObj.fuelConsumption = transportData.fuelConsumption;
+					transportObj.date = transportData.date;
 
 					const element = document.createElement("div");
 					element.className = "marker-delivery";
@@ -101,14 +105,39 @@ const AdminTransportDetail = () => {
 							Prioritate: <b>{transport.priority === 1 ? "Inalta" : "Standard"}</b>
 						</h3>
 						<h3>
-							Data de livrare: <b>{transport.desirableDeliveringDate}</b>
+							Data ceruta de livrare: <b>{transport.desirableDeliveringDate}</b>
 						</h3>
+						{transport.status === "Efectuat" && (
+							<>
+								<h3>
+									Data livrarii:{" "}
+									<b>
+										{new Date(transport.date).toLocaleDateString() +
+											" " +
+											new Date(transport.date).toLocaleTimeString()}
+									</b>
+								</h3>
+							</>
+						)}
 						<h3>
 							Volum: <b>{transport.volume}</b>
 						</h3>
 						<h3>
 							Greutate: <b>{transport.weight}</b>
 						</h3>
+						{transport.status === "Efectuat" && (
+							<>
+								<h3>
+									Distanta parcursa: <b>{transport.distanceTraveled} KM</b>
+								</h3>
+								<h3>
+									Consum carburant: <b>{transport.fuelConsumption} L</b>
+								</h3>
+								<h3>
+									Costuri: <b>{transport.cost.toFixed(2)} RON</b>
+								</h3>
+							</>
+						)}
 					</div>
 				)}
 

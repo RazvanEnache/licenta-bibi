@@ -5,14 +5,6 @@ const sequelize = new Sequelize({
 	storage: "./transport.db",
 });
 
-// Entities: User (isAdmin property, if set to false, then user is transporter), Transport, TransportingCar, Merchandise,
-// TransportingCarXUser, DestinationAddress, TransportigCarXUserXMerchandise
-/* 
-    Relations: 
-    - Transport has only one TransportingCarXUser
-    - Transport has only one Merchandise
-    - User can have one or more TransportingCar 
-*/
 const User = sequelize.define("user", {
 	id: {
 		type: Sequelize.UUID,
@@ -55,6 +47,10 @@ const User = sequelize.define("user", {
 		type: Sequelize.STRING,
 		allowNull: true,
 	},
+	cui: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
 	roles: {
 		type: Sequelize.STRING,
 		allowNull: true,
@@ -79,6 +75,10 @@ const TransportingCar = sequelize.define("transportingCar", {
 	},
 	name: {
 		type: Sequelize.STRING,
+		allowNull: true,
+	},
+	consumption: {
+		type: Sequelize.REAL,
 		allowNull: true,
 	},
 });
@@ -115,17 +115,20 @@ const Merchandise = sequelize.define("merchandise", {
 		type: Sequelize.REAL,
 		allowNull: true,
 	},
+	cancelled: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: false,
+	},
 	associated: {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 	},
+	client: {
+		type: Sequelize.STRING,
+		allowNull: true,
+	},
 });
 
-/* 
-	Characterizing transport priorty:	
-	- priority 0: must be delivered at specified date and time
-	- priority 1: can be delivered within the week of specified date
-*/
 const Transport = sequelize.define("transport", {
 	id: {
 		type: Sequelize.UUID,
@@ -135,6 +138,23 @@ const Transport = sequelize.define("transport", {
 	},
 	date: {
 		type: Sequelize.DATE,
+		allowNull: true,
+	},
+	status: {
+		type: Sequelize.ENUM,
+		values: ["Efectuat", "In progres livrare", "Draft", "Anulat"],
+		defaultValue: "Draft",
+	},
+	distanceTraveled: {
+		type: Sequelize.REAL,
+		allowNull: true,
+	},
+	fuelConsumption: {
+		type: Sequelize.REAL,
+		allowNull: true,
+	},
+	cost: {
+		type: Sequelize.REAL,
 		allowNull: true,
 	},
 });
@@ -154,9 +174,9 @@ User.hasOne(TransportingCar, {
 
 async function initialize() {
 	await sequelize.authenticate();
-	// await sequelize.sync({
-	// 	alter: true,
-	// });
+	await sequelize.sync({
+		alter: true,
+	});
 }
 
 export { initialize, User, Merchandise, Transport, TransportingCar };

@@ -41,6 +41,27 @@ const AdminTransports = () => {
 			Header: "Greutate",
 			accessor: "weight",
 		},
+		{
+			Header: "Status",
+			accessor: "status",
+			Cell: ({ cell }) => {
+				return (
+					<div
+						className={
+							cell.row.values.status === "Draft"
+								? "text-secondary"
+								: cell.row.values.status === "Efectuat"
+								? "text-success"
+								: cell.row.values.status === "In progres livrare"
+								? "text-warning"
+								: "text-danger"
+						}
+					>
+						{cell.row.values.status}
+					</div>
+				);
+			},
+		},
 	];
 
 	useEffect(() => {
@@ -76,7 +97,7 @@ const AdminTransports = () => {
 							transportObj.longitude = merchandise.longitude;
 							transportObj.volume = merchandise.volume;
 							transportObj.weight = merchandise.weight;
-							//transport.status = status;
+							transportObj.status = transport.status;
 
 							transportsArray.push(transportObj);
 						}
@@ -101,7 +122,7 @@ const AdminTransports = () => {
 
 	return (
 		<section className="nonAuth">
-			<h1>Lista transporturi de efectuat astazi:</h1>
+			<h1>Lista transporturi: </h1>
 			{transports?.length > 0 ? (
 				<FilteringTable
 					columnsData={ADMIN_USER_TRANSPORTS_COLUMNS}

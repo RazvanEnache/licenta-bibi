@@ -3,7 +3,7 @@ import axios from "axios";
 const getRouteSummary = async (body) => {
 	try {
 		const { data } = await axios.post(
-			`https://api.tomtom.com/routing/1/matrix/sync/json?key=foQZHPqTvz6z5b9z4gSkaQnzWRoeAmhd&routeType=fastest&travelMode=car`,
+			`https://api.tomtom.com/routing/1/matrix/sync/json?key=OtuPVAWYG9uHLLVSB1HSaeIZyf9Sv0Mc&routeType=fastest&travelMode=car`,
 			body
 		);
 

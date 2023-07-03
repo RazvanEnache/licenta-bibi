@@ -1,7 +1,4 @@
-import merchandiseService from "../api/MerchandiseApiService.mjs";
-import usersService from "../api/UsersApiService.mjs";
-import transportingCarService from "../api/TransportingCarApiService.mjs";
-import transportService from "../api/TransportsApiService.mjs";
+import axios, { axiosPrivate } from "../api/axios.js";
 import tomtomService from "../api/TomTomApiService.mjs";
 
 let main = async function () {
@@ -62,7 +59,9 @@ let main = async function () {
 
 						//de la desirableDeliveringDate de la lastMerchandise, adaug 15 min si adaug travelTimeInSeconds sa vad la ce ora as ajunge
 						let arrivalDateFromLastLocation = new Date(
-							lastMerchandiseDeliveryDate.setMinutes(lastMerchandiseDeliveryDate.getMinutes() + 15 + routeSummary.response.routeSummary.travelTimeInSeconds / 60)
+							lastMerchandiseDeliveryDate.setMinutes(
+								lastMerchandiseDeliveryDate.getMinutes() + 15 + routeSummary.response.routeSummary.travelTimeInSeconds / 60
+							)
 						);
 
 						switch (merchandise.priority) {
@@ -93,7 +92,7 @@ let main = async function () {
 			let masterObject = {};
 
 			for (let i = 0; i < transportingCars.length; i++) {
-				let { data: user } = await usersService.getUserById(transportingCars[i].userId);
+				let { data: user } = await axiosPrivate.get(`/user/${transportingCars[i].userId}`);
 
 				user.transportingCar = transportingCars[i];
 				user.transportingCar.remainedVolume = transportingCars[i].maxVolume;
@@ -111,18 +110,22 @@ let main = async function () {
 			for (let key in masterObject) {
 				for (let i = 0; i < masterObject[key].transportingCar.associatedMerch.length; i++) {
 					let currentMerch = masterObject[key].transportingCar.associatedMerch[i];
-					await transportService.registerTransport({ userId: key, merchandiseId: currentMerch.id, date: currentMerch.desirableDeliveringDate });
+					await transportService.registerTransport({
+						userId: key,
+						merchandiseId: currentMerch.id,
+						date: currentMerch.desirableDeliveringDate,
+					});
 				}
 			}
 		};
 		//#end region
 
-		let { data: allMerchandise } = await merchandiseService.getMerchandises();
+		let { data: allMerchandise } = await axiosPrivate.get("/merchandise?filter=associated/eq/0");
 		let todayMerchandise = allMerchandise.filter((merchandise) => {
 			return new Date(merchandise.desirableDeliveringDate).toLocaleDateString("en-US") === new Date().toLocaleDateString("en-US");
 		});
 
-		let { data: transportingCars } = await transportingCarService.getTransportingCars("userId-not-null");
+		let { data: transportingCars } = await axiosPrivate.get("/transportingCar?filter=userId/not/null");
 
 		let groupedMerchandise = groupMerchandiseByPriority(todayMerchandise);
 
@@ -133,24 +136,30 @@ let main = async function () {
 			let currentUser = transportingCars[i].userId;
 			for (let j = 0; j < groupedMerchandise.firstPriority.length; j++) {
 				let currentMerchandise = groupedMerchandise.firstPriority[j];
-				if (currentMerchandise.associated !== false && (await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser))) {
+				if (
+					currentMerchandise.associated !== false &&
+					(await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser))
+				) {
 					masterObject[currentUser].transportingCar.associatedMerch.push(currentMerchandise);
 					masterObject[currentUser].transportingCar.remainedVolume -= currentMerchandise.volume;
 					masterObject[currentUser].transportingCar.remainedWeight -= currentMerchandise.weight;
 					groupedMerchandise.firstPriority[j].associated = true;
-					await merchandiseService.patchMerchandise(currentMerchandise.id, { associated: true });
+					await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
 				}
 			}
 
 			//de grupat prioritatea 2
 			for (let j = 0; j < groupedMerchandise.secondPriority.length; j++) {
 				let currentMerchandise = groupedMerchandise.secondPriority[j];
-				if (currentMerchandise.associated !== false && (await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser))) {
+				if (
+					currentMerchandise.associated !== false &&
+					(await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser))
+				) {
 					masterObject[currentUser].transportingCar.associatedMerch.push(currentMerchandise);
 					masterObject[currentUser].transportingCar.remainedVolume -= currentMerchandise.volume;
 					masterObject[currentUser].transportingCar.remainedWeight -= currentMerchandise.weight;
 					groupedMerchandise.secondPriority[j].associated = true;
-					await merchandiseService.patchMerchandise(currentMerchandise.id, { associated: true });
+					await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
 				}
 			}
 			//trebuie marcat in baza de date marfurile asociate si cele ramase neasociate

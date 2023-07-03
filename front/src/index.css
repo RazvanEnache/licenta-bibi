@@ -28,6 +28,11 @@ body {
 	padding: 1rem 0.5rem;
 }
 
+.card {
+	max-width: 65%;
+	color: black;
+}
+
 .map {
 	height: 75vh;
 	width: 1100px;
@@ -44,6 +49,15 @@ body {
 	border: solid darkslategrey 3px;
 }
 
+.marker-transporter {
+	background-image: url("https://i.imgur.com/oz3r3Wq.png");
+	background-size: cover;
+	width: 50px;
+	height: 50px;
+	border-radius: 15px;
+	border: solid darkslategrey 3px;
+}
+
 section {
 	width: 100%;
 	max-width: 420px;
@@ -53,6 +67,14 @@ section {
 	justify-content: flex-start;
 	padding: 1rem;
 	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.growWithChild {
+	display: flex;
+	background-color: rgba(0, 0, 0, 0.4);
+	flex-direction: column;
+	justify-content: flex-start;
+	padding: 1rem;
 }
 
 .nonAuth {

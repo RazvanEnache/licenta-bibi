@@ -26,6 +26,7 @@ const AdminCars = () => {
 	const [maxWeight, setMaxWeight] = useState();
 	const [maxVolume, setMaxVolume] = useState();
 	const [name, setName] = useState();
+	const [consumption, setConsumption] = useState();
 	//endregiune
 
 	const handleClose = () => {
@@ -81,9 +82,6 @@ const AdminCars = () => {
 			accessor: "id",
 			Cell: ({ cell }) => (
 				<div className="d-flex justify-content-around">
-					<Button variant="primary">
-						<Link to={`/admin/transportingCar/${cell.row.values.id}`}>View</Link>
-					</Button>
 					<Button onClick={() => handleShow(cell.row.values.id)} variant="danger">
 						Delete
 					</Button>
@@ -158,7 +156,7 @@ const AdminCars = () => {
 	const handleAddCar = async (e) => {
 		e.preventDefault();
 		try {
-			const response = await axiosPrivate.post("/transportingCar", { maxWeight, maxVolume, name });
+			const response = await axiosPrivate.post("/transportingCar", { maxWeight, maxVolume, name, consumption });
 			setShowAddCar(false);
 			window.location.reload();
 		} catch (err) {
@@ -211,6 +209,16 @@ const AdminCars = () => {
 					<form onSubmit={handleAddCar}>
 						<label htmlFor="name">Model masina:</label>
 						<input type="text" id="name" autoComplete="off" onChange={(e) => setName(e.target.value)} value={name} required />
+
+						<label htmlFor="consumption">Consum:</label>
+						<input
+							type="number"
+							step="any"
+							id="consumption"
+							onChange={(e) => setConsumption(e.target.value)}
+							value={consumption}
+							required
+						/>
 
 						<label htmlFor="maxWeight">Greutate maxima (KG):</label>
 						<input

@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import FormSelect from "react-bootstrap/FormSelect";
 import axios from "../../api/axios";
 import { format } from "date-fns";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const AdminMerchandises = () => {
 	const [merchandises, setMerchandises] = useState([]);
@@ -15,10 +17,14 @@ const AdminMerchandises = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	const [clickedMerch, setClickedMerch] = useState("");
+	const [showWarningMessage, setShowWarningMessage] = useState(false);
+
 	const [show, setShow] = useState(false);
 	const [showAddMerchandise, setShowAddMerchandise] = useState(false);
 
 	//regiune modal adaugare marfa
+	const [client, setClient] = useState();
 	const [volume, setVolume] = useState();
 	const [weight, setWeight] = useState();
 	const [desirableDeliveringDate, setDesirableDeliveringDate] = useState();
@@ -30,10 +36,12 @@ const AdminMerchandises = () => {
 	const handleClose = () => {
 		setShow(false);
 		setShowAddMerchandise(false);
+		setShowWarningMessage(false);
 	};
 
-	const handleShow = (carId) => {
+	const handleShow = (merchId) => {
 		setShow(true);
+		setClickedMerch(merchId);
 	};
 
 	const handleShowAddMerchandise = () => {
@@ -71,7 +79,9 @@ const AdminMerchandises = () => {
 			accessor: "id",
 			Cell: ({ cell }) => (
 				<div className="d-flex justify-content-around">
-					<Button variant="danger">Delete</Button>
+					<Button variant="danger" onClick={() => handleShow(cell.row.values.id)}>
+						Delete
+					</Button>
 				</div>
 			),
 		},
@@ -83,9 +93,11 @@ const AdminMerchandises = () => {
 
 		const getMerchandises = async () => {
 			try {
-				const response = await axiosPrivate.get("/merchandise", {
+				const response = await axiosPrivate.get(`/merchandise?filter=cancelled/eq/0`, {
 					signal: controller.signal,
 				});
+
+				console.log(response);
 
 				isMounted && setMerchandises(response.data);
 			} catch (err) {
@@ -103,13 +115,27 @@ const AdminMerchandises = () => {
 	}, []);
 
 	const handleDelete = async (event) => {
-		//trebuie sa modifice si orarul
+		try {
+			const { data: associatedTransport } = await axiosPrivate.get(`/transport?filter=merchandiseId/eq/${clickedMerch}`);
+			console.log(associatedTransport[0]);
+			if (associatedTransport.length === 0 || associatedTransport[0]?.status === "Draft") {
+				associatedTransport.length > 0 &&
+					(await axiosPrivate.put(`/transport/${associatedTransport[0]?.id}`, { status: "Anulat" }));
+				const response = await axiosPrivate.put(`/merchandise/${clickedMerch}`, { cancelled: true });
+				window.location.reload();
+			} else {
+				setShowWarningMessage(true);
+			}
+		} catch (err) {
+			console.log(err);
+		}
 	};
 
 	const handleAddMerchandise = async (e) => {
 		e.preventDefault();
 		try {
 			const response = await axiosPrivate.post("/merchandise", {
+				client,
 				volume,
 				weight,
 				desirableDeliveringDate,
@@ -127,6 +153,24 @@ const AdminMerchandises = () => {
 
 	return (
 		<section className="nonAuth">
+			<Modal show={show} onHide={handleClose} centered>
+				<Modal.Header closeButton>
+					<Modal.Title className="text-danger">STERGE MARFA</Modal.Title>
+				</Modal.Header>
+				<p id="uidnote" className={showWarningMessage ? "instructions mx-2" : "offscreen mx-2"}>
+					<FontAwesomeIcon icon={faInfoCircle} />
+					Nu poti sterge aceasta marfa deoarece a fost asociata unui transport efectuat sau in progres livrare.
+				</p>
+				<Modal.Body className="text-secondary">Esti sigur ca vrei sa stergi aceasta marfa?</Modal.Body>
+				<Modal.Footer>
+					<Button variant="danger" onClick={handleDelete}>
+						Sterge
+					</Button>
+					<Button variant="info" onClick={handleClose}>
+						Cancel
+					</Button>
+				</Modal.Footer>
+			</Modal>
 			<Modal show={showAddMerchandise} onHide={handleClose} centered>
 				<Modal.Header closeButton>
 					<Modal.Title className="text-warning">ADAUGA O MARFA</Modal.Title>
@@ -138,6 +182,16 @@ const AdminMerchandises = () => {
 							<option value={1}>1</option>
 							<option value={2}>2</option>
 						</FormSelect>
+
+						<label htmlFor="client">Client: </label>
+						<input
+							type="text"
+							id="weight"
+							autoComplete="off"
+							onChange={(e) => setClient(e.target.value)}
+							value={client}
+							required
+						/>
 
 						<label htmlFor="weight">Greutate (KG):</label>
 						<input
@@ -161,7 +215,7 @@ const AdminMerchandises = () => {
 
 						<label htmlFor="desirableDeliveringDate">Data de livrare:</label>
 						<input
-							type="date"
+							type="datetime-local"
 							id="desirableDeliveringDate"
 							autoComplete="off"
 							onChange={(e) => setDesirableDeliveringDate(e.target.value)}

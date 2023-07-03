@@ -100,7 +100,7 @@ const handleRefreshToken = async (Model, req, res) => {
 			process.env.ACCESS_TOKEN_SECRET,
 			{ expiresIn: "1d" }
 		);
-		res.json({ roles, accessToken });
+		res.json({ roles, accessToken, user: foundUser.user, userObj: foundUser });
 	});
 };
 
@@ -141,6 +141,7 @@ async function authUser(Model, request, response) {
 		if (match) {
 			// create JWTs
 			const roles = foundUser.roles;
+			const user = foundUser.user;
 
 			const accessToken = jwt.sign(
 				{
@@ -161,7 +162,7 @@ async function authUser(Model, request, response) {
 			response.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 24 * 60 * 60 * 1000 });
 
 			// Send authorization roles and access token to user
-			response.json({ roles, accessToken });
+			response.json({ roles, accessToken, user, userObj: foundUser });
 		} else {
 			response.status(401).send();
 		}

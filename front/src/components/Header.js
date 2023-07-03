@@ -41,7 +41,7 @@ function Header() {
 										<Link to="/admin/transports">Transporturi</Link>
 									</Nav.Link>
 									<Nav.Link>
-										<Link to="#">Administrativ</Link>
+										<Link to="/admin/administrative">Administrativ</Link>
 									</Nav.Link>
 								</>
 							) : (

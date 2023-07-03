@@ -90,13 +90,15 @@ const AdminHome = () => {
 		const getUsers = async () => {
 			try {
 				let usersArray = [];
-				const response = await axiosPrivate.get("/users", {
+				const response = await axiosPrivate.get("/users?filter=user/ne/host", {
 					signal: controller.signal,
 				});
 
 				const carsResponse = await axiosPrivate.get("/transportingCar", {
 					signal: controller.signal,
 				});
+
+				setSelectedCar(carsResponse.data[0]?.id);
 
 				response?.data?.forEach((user) => {
 					let userObj = user;

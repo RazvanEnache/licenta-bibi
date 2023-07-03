@@ -93,7 +93,7 @@ const Register = () => {
 		try {
 			const response = await axios.post(
 				REGISTER_URL,
-				JSON.stringify({ user, pwd, firstName, lastName, cnp, email, phoneNumber, roles: "2001 5150" }),
+				JSON.stringify({ user, pwd, firstName, lastName, cnp, email, phoneNumber, roles: "2001" }),
 				{
 					headers: { "Content-Type": "application/json" },
 					withCredentials: true,
@@ -248,7 +248,7 @@ const Register = () => {
 							onFocus={() => setPhoneNumberFocus(true)}
 							onBlur={() => setPhoneNumberFocus(false)}
 						/>
-						<p id="uidnote" className={emailFocus && email && !validEmail ? "instructions" : "offscreen"}>
+						<p id="uidnote" className={phoneNumberFocus && phoneNumber && !validPhoneNumber ? "instructions" : "offscreen"}>
 							<FontAwesomeIcon icon={faInfoCircle} />
 							Trebuie sa fie un email valid.
 						</p>
