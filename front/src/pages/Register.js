@@ -217,7 +217,7 @@ const Register = () => {
 						<input
 							type="text"
 							id="email"
-							autoComplete="off"
+							autoComplete="on"
 							onChange={(e) => setEmail(e.target.value)}
 							value={email}
 							required
@@ -239,7 +239,7 @@ const Register = () => {
 						<input
 							type="text"
 							id="phoneNumber"
-							autoComplete="off"
+							autoComplete="on"
 							onChange={(e) => setPhoneNumber(e.target.value)}
 							value={phoneNumber}
 							required
@@ -261,7 +261,7 @@ const Register = () => {
 						<input
 							type="text"
 							id="cnp"
-							autoComplete="off"
+							autoComplete="on"
 							onChange={(e) => setCnp(e.target.value)}
 							value={cnp}
 							required
@@ -279,7 +279,7 @@ const Register = () => {
 						<input
 							type="text"
 							id="nume"
-							autoComplete="off"
+							autoComplete="on"
 							onChange={(e) => setFirstName(e.target.value)}
 							value={firstName}
 							required
@@ -292,7 +292,7 @@ const Register = () => {
 						<input
 							type="text"
 							id="prenume"
-							autoComplete="off"
+							autoComplete="on"
 							onChange={(e) => setLastName(e.target.value)}
 							value={lastName}
 							required

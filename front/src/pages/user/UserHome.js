@@ -39,9 +39,27 @@ const UserHome = () => {
 			accessor: "priority",
 		},
 		{
-			Header: "Data de livrare",
+			Header: "Data ceruta de livrare",
 			accessor: "desirableDeliveringDate",
-			Cell: ({ cell }) => format(new Date(cell.row.values.desirableDeliveringDate), "dd/MM/yyyy"),
+			Cell: ({ cell }) => {
+				return (
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleDateString() +
+					" " +
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleTimeString()
+				);
+			},
+		},
+		{
+			Header: "Data efectiva a livrarii",
+			accessor: "dateDelivered",
+			Cell: ({ cell }) => {
+				let date = cell.row.values.dateDelivered
+					? new Date(cell.row.values.dateDelivered).toLocaleDateString() +
+					  " " +
+					  new Date(cell.row.values.dateDelivered).toLocaleTimeString()
+					: "";
+				return <div>{date}</div>;
+			},
 		},
 		{
 			Header: "Latitudine destinatie",
@@ -52,11 +70,11 @@ const UserHome = () => {
 			accessor: "longitude",
 		},
 		{
-			Header: "Volum",
+			Header: "Volum (M Cub)",
 			accessor: "volume",
 		},
 		{
-			Header: "Greutate",
+			Header: "Greutate (KG)",
 			accessor: "weight",
 		},
 		{
@@ -133,6 +151,7 @@ const UserHome = () => {
 						transportObj.driver = userData[0]?.firstName + " " + userData[0]?.lastName;
 						transportObj.priority = associatedMerch.priority;
 						transportObj.desirableDeliveringDate = associatedMerch.desirableDeliveringDate;
+						transportObj.dateDelivered = transport.dateDelivered;
 						transportObj.latitude = associatedMerch.latitude;
 						transportObj.longitude = associatedMerch.longitude;
 						transportObj.volume = associatedMerch.volume;
@@ -258,12 +277,17 @@ const UserHome = () => {
 			setCurrentTransport({ ...currentTransport, status });
 			const index = currentTransport.index;
 			setTransports((prev) => {
-				return [...prev.slice(0, index), Object.assign({}, transports[index], { status }), ...prev.slice(index + 1)];
+				return [
+					...prev.slice(0, index),
+					Object.assign({}, transports[index], { status: status, dateDelivered: deliveredDate }),
+					...prev.slice(index + 1),
+				];
 			});
 			if (transports[index + 1] && transports[index + 1].status === "Draft" && status === "Efectuat") {
-				await axiosPrivate.patch(`/transport/${currentTransport.id}`, { date: deliveredDate });
+				await axiosPrivate.patch(`/transport/${currentTransport.id}`, { dateDelivered: deliveredDate });
 				setCurrentTransport(transports[index + 1]);
-			} else if (!transports[index + 1] || transports[index + 1].status !== "Draft") {
+			}
+			if ((status === "Efectuat" && !transports[index + 1]) || transports[index + 1].status !== "Draft") {
 				setCurrentTransport(null);
 			}
 		} catch (err) {

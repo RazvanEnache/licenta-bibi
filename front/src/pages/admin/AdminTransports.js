@@ -21,9 +21,27 @@ const AdminTransports = () => {
 			accessor: "priority",
 		},
 		{
-			Header: "Data de livrare",
+			Header: "Data ceruta de livrare",
 			accessor: "desirableDeliveringDate",
-			Cell: ({ cell }) => format(new Date(cell.row.values.desirableDeliveringDate), "dd/MM/yyyy"),
+			Cell: ({ cell }) => {
+				return (
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleDateString() +
+					" " +
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleTimeString()
+				);
+			},
+		},
+		{
+			Header: "Data efectiva a livrarii",
+			accessor: "dateDelivered",
+			Cell: ({ cell }) => {
+				let date = cell.row.values.dateDelivered
+					? new Date(cell.row.values.dateDelivered).toLocaleDateString() +
+					  " " +
+					  new Date(cell.row.values.dateDelivered).toLocaleTimeString()
+					: "";
+				return <div>{date}</div>;
+			},
 		},
 		{
 			Header: "Latitudine destinatie",
@@ -34,11 +52,11 @@ const AdminTransports = () => {
 			accessor: "longitude",
 		},
 		{
-			Header: "Volum",
+			Header: "Volum (M Cub)",
 			accessor: "volume",
 		},
 		{
-			Header: "Greutate",
+			Header: "Greutate (KG)",
 			accessor: "weight",
 		},
 		{
@@ -93,6 +111,7 @@ const AdminTransports = () => {
 							transportObj.driver = driver?.firstName + " " + driver?.lastName;
 							transportObj.priority = merchandise.priority;
 							transportObj.desirableDeliveringDate = merchandise.desirableDeliveringDate;
+							transportObj.dateDelivered = transport.dateDelivered;
 							transportObj.latitude = merchandise.latitude;
 							transportObj.longitude = merchandise.longitude;
 							transportObj.volume = merchandise.volume;

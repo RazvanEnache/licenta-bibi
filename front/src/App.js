@@ -21,7 +21,6 @@ import AdminAdministrative from "./pages/admin/AdminAdministrative";
 const ROLES = {
 	User: "2001",
 	Admin: "5150",
-	Client: "1300",
 };
 
 function App() {

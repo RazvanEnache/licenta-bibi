@@ -79,7 +79,7 @@ const AdminAdministrative = () => {
 	};
 	const generateSecondReport = async () => {
 		const { data: transportsData } = await axiosPrivate.get("/transport?filter=status/eq/Efectuat");
-		const { data: transportersData } = await axiosPrivate.get("/users");
+		const { data: transportersData } = await axiosPrivate.get("/users?filter=user/ne/host");
 
 		let transportersArray = [];
 		for (let i = 0; i < transportersData.length; i++) {
@@ -144,8 +144,10 @@ const AdminAdministrative = () => {
 					isSuccess: false,
 					distanceTraveled: 0,
 				};
+
 				let remainedVolume = masterObject[userId].transportingCar.remainedVolume;
 				let remainedWeight = masterObject[userId].transportingCar.remainedWeight;
+
 				if (remainedVolume - merchandise.volume >= 0 && remainedWeight - merchandise.weight >= 0) {
 					let lastAssociatedMerchandise = masterObject[userId].transportingCar.associatedMerch.at(-1);
 					if (!lastAssociatedMerchandise) {
@@ -168,7 +170,7 @@ const AdminAdministrative = () => {
 							],
 						};
 						let routeSummaryFromHQ = await tomtomService.getRouteSummary(fromHQTo);
-						console.log(merchandise);
+						console.log("Route summary: ");
 						console.log(routeSummaryFromHQ);
 						let distanceTraveledFromHQ = routeSummaryFromHQ.response.routeSummary.lengthInMeters / 1000;
 						return { isSuccess: true, distanceTraveled: distanceTraveledFromHQ };
@@ -193,19 +195,23 @@ const AdminAdministrative = () => {
 					};
 					try {
 						let routeSummary = await tomtomService.getRouteSummary(fromTo);
+						console.log("Route summary: ");
+						console.log(routeSummary);
 						let lengthInKM = routeSummary.response.routeSummary.lengthInMeters / 1000;
 						responseObject.distanceTraveled = lengthInKM;
 						if (routeSummary.statusCode === 200) {
 							let lastMerchandiseDeliveryDate = new Date(lastAssociatedMerchandise.desirableDeliveringDate);
 
-							//de la desirableDeliveringDate de la lastMerchandise, adaug 15 min si adaug travelTimeInSeconds sa vad la ce ora as ajunge
+							//de la desirableDeliveringDate de la lastMerchandise, adaug 5 min si adaug travelTimeInSeconds sa vad la ce ora as ajunge
 							let arrivalDateFromLastLocation = new Date(
 								lastMerchandiseDeliveryDate.setMinutes(
 									lastMerchandiseDeliveryDate.getMinutes() +
-										15 +
+										5 +
 										routeSummary.response.routeSummary.travelTimeInSeconds / 60
 								)
 							);
+
+							responseObject.arrivalDateFromLastLocation = arrivalDateFromLastLocation;
 
 							switch (merchandise.priority) {
 								case "1":
@@ -227,6 +233,8 @@ const AdminAdministrative = () => {
 					} catch (error) {
 						console.log(error);
 					}
+				} else {
+					console.log("Masina nu mai are spatiu pentru aceasta marfa!");
 				}
 				return responseObject;
 			};
@@ -268,7 +276,12 @@ const AdminAdministrative = () => {
 			//#end region
 
 			let { data: allMerchandise } = await axiosPrivate.get("/merchandise?filter=associated/eq/0");
-			allMerchandise = allMerchandise.filter((merchandise) => merchandise.cancelled !== true);
+			if (Array.isArray(allMerchandise) && allMerchandise.length > 0) {
+				allMerchandise = allMerchandise.filter((merchandise) => merchandise.cancelled !== true);
+			} else {
+				throw "All merchandises are associated!";
+			}
+
 			let todayMerchandise = allMerchandise.filter((merchandise) => {
 				return new Date(merchandise.desirableDeliveringDate).toLocaleDateString("en-US") === new Date().toLocaleDateString("en-US");
 			});
@@ -282,9 +295,10 @@ const AdminAdministrative = () => {
 			for (let i = 0; i < transportingCars.length; i++) {
 				let currentUser = transportingCars[i].userId;
 				let carConsumption = transportingCars[i].consumption;
-
 				for (let j = 0; j < groupedMerchandise.firstPriority.length; j++) {
 					let currentMerchandise = groupedMerchandise.firstPriority[j];
+					console.log("Marfa curenta: ");
+					console.log(currentMerchandise);
 					let response = await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser);
 					console.log(response);
 					if (!currentMerchandise.associated && response.isSuccess) {
@@ -295,7 +309,7 @@ const AdminAdministrative = () => {
 						masterObject[currentUser].transportingCar.remainedVolume -= currentMerchandise.volume;
 						masterObject[currentUser].transportingCar.remainedWeight -= currentMerchandise.weight;
 						groupedMerchandise.firstPriority[j].associated = true;
-						await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
+						//await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
 					}
 				}
 
@@ -303,6 +317,8 @@ const AdminAdministrative = () => {
 				for (let j = 0; j < groupedMerchandise.secondPriority.length; j++) {
 					let currentMerchandise = groupedMerchandise.secondPriority[j];
 					let response = await merchandiseCanBeAssociatedToVehicle(currentMerchandise, currentUser);
+					console.log("Marfa curenta: ");
+					console.log(currentMerchandise);
 					console.log(response);
 
 					if (!currentMerchandise.associated && response.isSuccess) {
@@ -313,7 +329,7 @@ const AdminAdministrative = () => {
 						masterObject[currentUser].transportingCar.remainedVolume -= currentMerchandise.volume;
 						masterObject[currentUser].transportingCar.remainedWeight -= currentMerchandise.weight;
 						groupedMerchandise.secondPriority[j].associated = true;
-						await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
+						//await axiosPrivate.patch(`/merchandise/${currentMerchandise.id}`, { associated: true });
 					}
 				}
 				//trebuie marcat in baza de date marfurile asociate si cele ramase neasociate

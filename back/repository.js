@@ -140,6 +140,10 @@ const Transport = sequelize.define("transport", {
 		type: Sequelize.DATE,
 		allowNull: true,
 	},
+	dateDelivered: {
+		type: Sequelize.DATE,
+		allowNull: true,
+	},
 	status: {
 		type: Sequelize.ENUM,
 		values: ["Efectuat", "In progres livrare", "Draft", "Anulat"],

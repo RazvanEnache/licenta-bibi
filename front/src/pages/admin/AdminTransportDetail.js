@@ -56,16 +56,16 @@ const AdminTransportDetail = () => {
 					transportObj.userId = transportData.userId;
 					transportObj.driver = userData?.firstName + " " + userData?.lastName;
 					transportObj.priority = merchandise?.priority;
-					transportObj.desirableDeliveringDate = format(new Date(merchandise?.desirableDeliveringDate), "dd/MM/yyy");
+					transportObj.desirableDeliveringDate = transportData?.date;
 					transportObj.latitude = merchandise?.latitude;
 					transportObj.longitude = merchandise?.longitude;
 					transportObj.volume = merchandise?.volume;
 					transportObj.weight = merchandise?.weight;
 					transportObj.status = transportData?.status;
-					transportObj.distanceTraveled = transportData.distanceTraveled;
-					transportObj.cost = transportData.cost;
-					transportObj.fuelConsumption = transportData.fuelConsumption;
-					transportObj.date = transportData.date;
+					transportObj.distanceTraveled = transportData?.distanceTraveled;
+					transportObj.cost = transportData?.cost;
+					transportObj.fuelConsumption = transportData?.fuelConsumption;
+					transportObj.date = transportData?.dateDelivered;
 
 					const element = document.createElement("div");
 					element.className = "marker-delivery";
@@ -120,10 +120,10 @@ const AdminTransportDetail = () => {
 							</>
 						)}
 						<h3>
-							Volum: <b>{transport.volume}</b>
+							Volum: <b>{transport.volume} M Cub</b>
 						</h3>
 						<h3>
-							Greutate: <b>{transport.weight}</b>
+							Greutate: <b>{transport.weight} KG</b>
 						</h3>
 						{transport.status === "Efectuat" && (
 							<>

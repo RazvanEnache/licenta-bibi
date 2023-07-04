@@ -97,7 +97,7 @@ const AdminCars = () => {
 		const getUsers = async () => {
 			try {
 				let carsArray = [];
-				const response = await axiosPrivate.get("/users", {
+				const response = await axiosPrivate.get("/users?filter=user/ne/host", {
 					signal: controller.signal,
 				});
 
@@ -251,7 +251,7 @@ const AdminCars = () => {
 				Adauga masina
 			</Button>
 			<br />
-			{users?.length ? <FilteringTable columnsData={ADMIN_CARS_COLUMNS} tableData={cars} /> : <p>Nicio masina pentru afisare.</p>}
+			{cars?.length > 0 ? <FilteringTable columnsData={ADMIN_CARS_COLUMNS} tableData={cars} /> : <p>Nicio masina pentru afisare.</p>}
 		</section>
 	);
 };

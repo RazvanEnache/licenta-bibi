@@ -100,17 +100,19 @@ const AdminHome = () => {
 
 				setSelectedCar(carsResponse.data[0]?.id);
 
-				response?.data?.forEach((user) => {
-					let userObj = user;
-					userObj.car = "";
-					if (Array.isArray(carsResponse.data) && carsResponse.data.length > 0) {
-						let userAssociatedCar = carsResponse?.data?.find((car) => car.userId === user.id);
-						if (userAssociatedCar && Object.keys(userAssociatedCar).length > 0) {
-							userObj.car = userAssociatedCar.id.substr(0, 4) + " " + userAssociatedCar.name;
+				if (Array.isArray(response.data) && response.data.length > 0) {
+					response?.data?.forEach((user) => {
+						let userObj = user;
+						userObj.car = "";
+						if (Array.isArray(carsResponse.data) && carsResponse.data.length > 0) {
+							let userAssociatedCar = carsResponse?.data?.find((car) => car.userId === user.id);
+							if (userAssociatedCar && Object.keys(userAssociatedCar).length > 0) {
+								userObj.car = userAssociatedCar.id.substr(0, 4) + " " + userAssociatedCar.name;
+							}
 						}
-					}
-					usersArray.push(userObj);
-				});
+						usersArray.push(userObj);
+					});
+				}
 
 				isMounted && setUsers(usersArray);
 				isMounted && setCars(Array.isArray(carsResponse.data) && carsResponse?.data.length > 0 ? carsResponse.data : []);

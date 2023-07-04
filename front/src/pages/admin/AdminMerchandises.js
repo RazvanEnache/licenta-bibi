@@ -50,6 +50,10 @@ const AdminMerchandises = () => {
 
 	const ADMIN_MERCHANDISES_COLUMNS = [
 		{
+			Header: "Client",
+			accessor: "client",
+		},
+		{
 			Header: "Prioritate",
 			accessor: "priority",
 		},
@@ -64,7 +68,13 @@ const AdminMerchandises = () => {
 		{
 			Header: "Data de livrare",
 			accessor: "desirableDeliveringDate",
-			Cell: ({ cell }) => format(new Date(cell.row.values.desirableDeliveringDate), "dd/MM/yyyy"),
+			Cell: ({ cell }) => {
+				let date =
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleDateString() +
+					" " +
+					new Date(cell.row.values.desirableDeliveringDate).toLocaleTimeString();
+				return <div>{date}</div>;
+			},
 		},
 		{
 			Header: "Longitudine",
@@ -223,6 +233,16 @@ const AdminMerchandises = () => {
 							required
 						/>
 
+						<label htmlFor="latitude">Latitudine:</label>
+						<input
+							type="text"
+							id="latitude"
+							autoComplete="off"
+							onChange={(e) => setLatitude(e.target.value)}
+							value={latitude}
+							required
+						/>
+
 						<label htmlFor="longitude">Longitudine:</label>
 						<input
 							type="text"
@@ -233,15 +253,6 @@ const AdminMerchandises = () => {
 							required
 						/>
 
-						<label htmlFor="latitude">Latitudine:</label>
-						<input
-							type="text"
-							id="latitude"
-							autoComplete="off"
-							onChange={(e) => setLatitude(e.target.value)}
-							value={latitude}
-							required
-						/>
 						<hr />
 						<button className="btn btn-warning" variant="warning">
 							Adauga
